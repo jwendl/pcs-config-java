@@ -26,16 +26,16 @@ In Windows you can also set these [in your system][windows-envvars-howto-url].
 If using envornemnt variables, this service requires the following environment
 variables to be set:
 - `PCS_STORAGEADAPTER_WEBSERVICE_URL` - the url for
-  the [Storage Adapter Webservice](https://github.com/Azure/pcs-storage-adapter-dotnet)
+  the [Storage Adapter Webservice](https://github.com/Azure/pcs-storage-adapter-java.git)
   used for key value storage
 - `PCS_TELEMETRY_WEBSERVICE_URL` - the url for
-  the [Telemetry Webservice](https://github.com/Azure/device-telemetry-dotnet.git)
+  the [Telemetry Webservice](https://github.com/Azure/device-telemetry-java.git)
   used for key value storage
 - `PCS_DEVICESIMULATION_WEBSERVICE_URL` - the url for
   the [Device Simulation Webservice](https://github.com/Azure/device-simulation-dotnet.git)
   used for key value storage
 - `PCS_IOTHUBMANAGER_WEBSERVICE_URL` - the url for
-  the [IOT Hub Manager Webservice](https://github.com/Azure/iothub-manager-dotnet.git)
+  the [IOT Hub Manager Webservice](https://github.com/Azure/iothub-manager-java.git)
   used for key value storage
 
 ## Quickstart - Running the service with Docker
