@@ -18,9 +18,9 @@ public class Logo {
     public static final Logo Default;
     public static final String IS_DEFAULT_HEADER = "IsDefault";
     public static final String NAME_HEADER = "Name";
-
     private static final String DEFAULT_LOGO_NAME = "Default Logo";
     private static final String SVG_TYPE = "image/svg+xml";
+    private static final String DEFAULT_LOGO_PATH = "/resources/content/DefaultLogo.svg";
 
 
     static {
@@ -29,7 +29,7 @@ public class Logo {
         Default.setName(Logo.DEFAULT_LOGO_NAME);
         Default.setDefault(true);
         try {
-            InputStream stream = Logo.class.getResourceAsStream("/resources/content/DefaultLogo.svg");
+            InputStream stream = Logo.class.getResourceAsStream(Logo.DEFAULT_LOGO_PATH);
             InputStreamReader in = new InputStreamReader(stream, "UTF-8");
             BufferedReader reader = new BufferedReader(in);
             StringBuffer sb = new StringBuffer();

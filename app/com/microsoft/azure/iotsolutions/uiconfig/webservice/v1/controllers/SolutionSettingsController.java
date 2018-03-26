@@ -65,7 +65,7 @@ public final class SolutionSettingsController extends Controller {
         Http.RequestBody body = request().body();
         ByteString byteString = body.asBytes();
         byte[] bytes;
-        // if byteString is null, need to read bytes from file
+        // If byteString is null, need to read bytes from file
         if(byteString == null) {
             bytes = this.convertToByteArr(body.asRaw());
         } else {

@@ -70,7 +70,7 @@ public class SolutionSettingsControllerTest {
 
     @Test(timeout = 100000)
     @Category({UnitTest.class})
-    public void GetLogoShouldReturnExpectedNameAndType() throws BaseException, ExecutionException, InterruptedException {
+    public void getLogoShouldReturnExpectedNameAndType() throws BaseException, ExecutionException, InterruptedException {
         String image = rand.NextString();
         String type = rand.NextString();
         String name = rand.NextString();
@@ -88,7 +88,7 @@ public class SolutionSettingsControllerTest {
 
     @Test(timeout = 100000)
     @Category({UnitTest.class})
-    public void GetLogoShouldReturnDefaultLogo() throws BaseException, ExecutionException, InterruptedException {
+    public void getLogoShouldReturnDefaultLogo() throws BaseException, ExecutionException, InterruptedException {
         Logo model = Logo.Default;
         Mockito.when(mockStorage.getLogoAsync()).thenReturn(CompletableFuture.supplyAsync(() -> model));
         controller = new SolutionSettingsController(mockStorage);
@@ -103,7 +103,7 @@ public class SolutionSettingsControllerTest {
 
     @Test(timeout = 100000)
     @Category({UnitTest.class})
-    public void SetLogoShouldReturnGivenLogoAndName() throws BaseException, ExecutionException, InterruptedException, UnsupportedEncodingException, URISyntaxException {
+    public void setLogoShouldReturnGivenLogoAndName() throws BaseException, ExecutionException, InterruptedException, UnsupportedEncodingException, URISyntaxException {
         String image = rand.NextString();
         String type = rand.NextString();
         String name = rand.NextString();
@@ -120,7 +120,7 @@ public class SolutionSettingsControllerTest {
 
     @Test(timeout = 100000)
     @Category({UnitTest.class})
-    public void SetLogoShouldReturnGivenLogo() throws BaseException, ExecutionException, InterruptedException, UnsupportedEncodingException, URISyntaxException {
+    public void setLogoShouldReturnGivenLogo() throws BaseException, ExecutionException, InterruptedException, UnsupportedEncodingException, URISyntaxException {
         String image = rand.NextString();
         String type = rand.NextString();
         Logo model = new Logo(image, type, null, false);
@@ -135,7 +135,7 @@ public class SolutionSettingsControllerTest {
 
     @Test(timeout = 100000)
     @Category({UnitTest.class})
-    public void SetLogoShouldReturnGivenName() throws BaseException, ExecutionException, InterruptedException, UnsupportedEncodingException, URISyntaxException {
+    public void setLogoShouldReturnGivenName() throws BaseException, ExecutionException, InterruptedException, UnsupportedEncodingException, URISyntaxException {
         String name = rand.NextString();
         Logo model = new Logo(null, null, name, false);
         Mockito.when(mockStorage.setLogoAsync(Mockito.any(Logo.class))).thenReturn(CompletableFuture.supplyAsync(() -> model));

@@ -114,6 +114,7 @@ public class Storage implements IStorage {
                         }
                     });
         } catch (ResourceNotFoundException ex) {
+            log.debug("Could not find logo, returning default logo");
             return CompletableFuture.supplyAsync(() -> Logo.Default);
         } catch (BaseException ex) {
             throw new CompletionException("Unable to get logo", ex);
@@ -127,8 +128,8 @@ public class Storage implements IStorage {
                 Logo current = this.getLogoAsync().toCompletableFuture().get();
                 if (!current.getDefault()) {
                     String currentName = current.getName();
-                    if (model.getName() == null && current.getName() != null) {
-                        model.setName(current.getName());
+                    if (model.getName() == null && currentName != null) {
+                        model.setName(currentName);
                     }
                     String currentImage = current.getImage();
                     if (model.getImage() == null && currentImage != null) {
@@ -137,7 +138,7 @@ public class Storage implements IStorage {
                     }
                 }
             } catch (Exception e) {
-                log.warn("Exception on getLogoAsync: ", e.toString());
+                log.error("Exception on getLogoAsync: ", e.toString());
             }
         }
         String value = toJson(model);
