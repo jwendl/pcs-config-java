@@ -125,7 +125,7 @@ public class Storage implements IStorage {
     public CompletionStage<Logo> setLogoAsync(Logo model) throws BaseException {
         if (model.getName() == null || model.getImage() == null) {
             try {
-                return this.getLogoAsync().thenCompose(current -> {
+                return this.getLogoAsync().thenComposeAsync(current -> {
                     try {
                         updateLogoWithCurrent(model, current);
                         return updateLogoAsync(toJson(model));
