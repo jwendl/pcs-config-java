@@ -125,26 +125,19 @@ public class Storage implements IStorage {
     public CompletionStage<Logo> setLogoAsync(Logo model) throws BaseException {
         if (model.getName() == null || model.getImage() == null) {
             try {
-                Logo current = this.getLogoAsync().toCompletableFuture().get();
-                if (!current.getDefault()) {
-                    String currentName = current.getName();
-                    if (model.getName() == null && currentName != null) {
-                        model.setName(currentName);
+                return this.getLogoAsync().thenCompose(current -> {
+                    try {
+                        updateLogoWithCurrent(model, current);
+                        return updateLogoAsync(toJson(model));
+                    } catch (BaseException be) {
+                        throw new CompletionException("Cannot update logo", be);
                     }
-                    String currentImage = current.getImage();
-                    if (model.getImage() == null && currentImage != null) {
-                        model.setImage(currentImage);
-                        model.setType(current.getType());
-                    }
-                }
+                });
             } catch (Exception e) {
                 log.error("Exception on getLogoAsync: ", e.toString());
             }
         }
-        String value = toJson(model);
-        return client.updateAsync(SolutionCollectionId, LogoKey, value, "*").thenApplyAsync(m ->
-                fromJson(m.getData(), Logo.class)
-        );
+        return updateLogoAsync(toJson(model));
     }
 
     @Override
@@ -193,5 +186,26 @@ public class Storage implements IStorage {
         if (!theme.has(BingMapKey)) {
             theme.put(BingMapKey, config.getBingMapKey());
         }
+    }
+
+    private Logo updateLogoWithCurrent(Logo model, Logo current) {
+        if (!current.getDefault()) {
+            String currentName = current.getName();
+            if (model.getName() == null && currentName != null) {
+                model.setName(currentName);
+            }
+            String currentImage = current.getImage();
+            if (model.getImage() == null && currentImage != null) {
+                model.setImage(currentImage);
+                model.setType(current.getType());
+            }
+        }
+        return model;
+    }
+
+    private CompletionStage<Logo> updateLogoAsync(String value) throws BaseException {
+        return client.updateAsync(SolutionCollectionId, LogoKey, value, "*").thenApplyAsync(m ->
+                fromJson(m.getData(), Logo.class)
+        );
     }
 }

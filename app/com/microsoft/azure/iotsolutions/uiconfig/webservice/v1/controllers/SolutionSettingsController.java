@@ -30,7 +30,8 @@ public final class SolutionSettingsController extends Controller {
 
     private static final Logger.ALogger log = Logger.of(SolutionSettingsController.class);
     private final IStorage storage;
-    private static final int BUFFER_SIZE = 1024;
+    // 128 KB
+    private static final int BUFFER_SIZE = 131072;
     private static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
 
     @Inject
@@ -66,18 +67,18 @@ public final class SolutionSettingsController extends Controller {
         ByteString byteString = body.asBytes();
         byte[] bytes;
         // If byteString is null, need to read bytes from file
-        if(byteString == null) {
-            bytes = this.convertToByteArr(body.asRaw());
+        if (byteString == null) {
+            bytes = this.convertToByteArray(body.asRaw());
         } else {
             bytes = byteString.toByteBuffer().array();
         }
         Logo model = new Logo();
-        if(bytes.length > 0) {
+        if (bytes.length > 0) {
             model.setType(request().contentType().orElse("application/octet-stream"));
             model.setImage(Base64.getEncoder().encodeToString(bytes));
         }
         Optional<String> logoName = request().header(Logo.NAME_HEADER);
-        if(logoName.isPresent()) {
+        if (logoName.isPresent()) {
             model.setName(logoName.get());
         }
         //for some unknown issue on travis test, make a variable to refer the response in current thread context.
@@ -88,38 +89,45 @@ public final class SolutionSettingsController extends Controller {
                 });
     }
 
+    // Given logo and response, sets the body of the response to be the logo image,
+    // if not null.
+    // Also sets the following headers in response:
+    // Name: Logo Name (if not null)
+    // IsDefault: Boolean, if Logo is default
+    // Access_Control_Expose_Headers: Name, IsDefault. This exposes these headers
     private Result setImageResponse(Logo model, Http.Response response) {
-        if(model.getName() != null) {
+        if (model.getName() != null) {
             response.setHeader(Logo.NAME_HEADER, model.getName());
         }
         response.setHeader(Logo.IS_DEFAULT_HEADER, Boolean.toString(model.getDefault()));
         response.setHeader(SolutionSettingsController.ACCESS_CONTROL_EXPOSE_HEADERS,
                 Logo.NAME_HEADER + "," + Logo.IS_DEFAULT_HEADER);
-        if(model.getImage() == null) {
+        if (model.getImage() == null) {
             return ok();
         }
         return ok(Base64.getDecoder().decode(model.getImage().getBytes())).as(model.getType());
     }
 
-    private byte[] convertToByteArr(Http.RawBuffer rawBuffer) {
+    private byte[] convertToByteArray(Http.RawBuffer rawBuffer) {
         File f = rawBuffer.asFile();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] buf = new byte[BUFFER_SIZE];
+        long fileLength = f.length();
+        byte[] buf = new byte[fileLength < BUFFER_SIZE ? (int) fileLength : BUFFER_SIZE];
         try {
             FileInputStream fileInputStream = new FileInputStream(f);
+
             try {
                 int len = fileInputStream.read(buf);
-                while(len > 0) {
+                while (len > 0) {
                     outputStream.write(buf, 0, len);
                     len = fileInputStream.read(buf);
                 }
                 fileInputStream.close();
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 log.warn("Error converting to byte array: ", ex.toString());
                 fileInputStream.close();
             }
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             log.warn("Error converting to byte array: ", ex.toString());
         }
         f.delete();
