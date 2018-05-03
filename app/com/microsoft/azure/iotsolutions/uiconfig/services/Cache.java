@@ -152,18 +152,45 @@ public class Cache implements ICache {
     }
 
     private boolean needBuild(boolean force, ValueApiModel twin) {
-        boolean needBuild = false;
-        // validate timestamp
-        if (force || twin == null) {
-            needBuild = true;
-        } else {
-            boolean rebuilding = Json.fromJson(Json.parse(twin.getData()), CacheValue.class).isRebuilding();
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
-            DateTime timestamp = formatter.parseDateTime(twin.getMetadata().get("$modified"));
-            needBuild = needBuild || !rebuilding && timestamp.plusSeconds(this.cacheTTL).isBeforeNow();
-            needBuild = needBuild || rebuilding && timestamp.plusSeconds(this.rebuildTimeout).isBeforeNow();
+        if (force) {
+            this.log.info("Cache will be rebuilt due to the force flag");
+            return true;
         }
-        return needBuild;
+
+        if (twin == null) {
+            this.log.info("Cache will be rebuilt since no cache was found");
+            return true;
+        }
+
+        CacheValue cacheValue = Json.fromJson(Json.parse(twin.getData()), CacheValue.class);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
+        DateTime timestamp = formatter.parseDateTime(twin.getMetadata().get("$modified"));
+        if (cacheValue.isRebuilding()) {
+            if (timestamp.plusSeconds(this.rebuildTimeout).isBeforeNow()) {
+                this.log.info("Cache will be rebuilt since last rebuilding was timeout");
+                return true;
+            } else {
+                this.log.info("Cache rebuilding skipped since it was rebuilding by other instance");
+                return false;
+            }
+        }
+        else
+        {
+            if (cacheValue.isNullOrEmpty()) {
+                this.log.info("Cache will be rebuilt since it is empty");
+                return true;
+            }
+
+            if (timestamp.plusSeconds(this.cacheTTL).isBeforeNow()) {
+                this.log.info("Cache will be rebuilt since it was expired");
+                return true;
+            }
+            else
+            {
+                this.log.info("Cache rebuilding skipped since it was not expired");
+                return false;
+            }
+        }
     }
 
     private CompletionStage<DeviceTwinName> getValidNamesAsync() throws ExternalDependencyException {
